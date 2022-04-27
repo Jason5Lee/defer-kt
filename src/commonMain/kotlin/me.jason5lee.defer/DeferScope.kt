@@ -1,13 +1,14 @@
 package me.jason5lee.defer
 
 import io.ktor.utils.io.core.*
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 
 private fun throwDeferScopeClosed(): Nothing {
     throw IllegalStateException("DeferScope used out of scope or cancelled")
 }
 
+/**
+ *
+ */
 public class DeferScope @PublishedApi internal constructor() {
     private var defers: ArrayList<Closeable>? = ArrayList()
 
@@ -29,7 +30,7 @@ public class DeferScope @PublishedApi internal constructor() {
 
     @PublishedApi
     internal fun runDefers() {
-        val defers = defers ?: return
+        val defers = this.defers ?: return
         var exception: Throwable? = null
         for (i in (defers.size-1) downTo 0) {
             try {
@@ -42,12 +43,13 @@ public class DeferScope @PublishedApi internal constructor() {
                 }
             }
         }
+        this.defers = null
         if (exception != null) throw exception
     }
 
     @PublishedApi
     internal fun runDefers(exception : Throwable): Nothing {
-        defers?.let { defers ->
+        this.defers?.let { defers ->
             for (i in (defers.size-1) downTo 0) {
                 try {
                     defers[i].close()
@@ -56,6 +58,7 @@ public class DeferScope @PublishedApi internal constructor() {
                 }
             }
         }
+        this.defers = null
 
         throw exception
     }
