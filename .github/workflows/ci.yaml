@@ -1,0 +1,88 @@
+name: ci
+
+on: [ push, pull_request ]
+
+jobs:
+  check:
+    runs-on: ${{ matrix.os }}
+    env:
+      CI_MP: 1
+
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-11, windows-latest ]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-wrapper-
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('**/*.gradle.kts') }}-${{ hashFiles('buildSrc/src/main/kotlin/Versions.kt') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-caches-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - run: ./gradlew linuxX64Test
+        if: matrix.os == 'ubuntu-latest'
+
+      - run: ./gradlew mingwX64Test
+        if: matrix.os == 'windows-latest'
+
+      - run: ./gradlew check
+        if: matrix.os == 'macos-11'
+
+  publish:
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.check.result == 'success'
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-11, windows-latest ]
+
+    env:
+      ORG_GRADLE_PROJECT_ossrhUsername: ${{ secrets.OSSRH_USERNAME }}
+      ORG_GRADLE_PROJECT_ossrhPassword: ${{ secrets.OSSRH_PASSWORD }}
+      ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.SIGNING_KEY_ID }}
+      ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
+      ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-wrapper-
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('**/*.gradle.kts') }}-${{ hashFiles('buildSrc/src/main/kotlin/Versions.kt') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-caches-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - run: ./gradlew publishLinuxX64PublicationToMavenRepository --info --stacktrace
+        if: matrix.os == 'ubuntu-latest'
+
+      - run: ./gradlew publishLinuxArm64PublicationToMavenRepository
+        if: matrix.os == 'ubuntu-latest'
+
+      - run: ./gradlew publishMingwX64PublicationToMavenRepository
+        if: matrix.os == 'windows-latest'
+
+      - run: ./gradlew publish
+        if: matrix.os == 'macos-11'
