@@ -158,15 +158,43 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
-        val jvmMain by getting
+        val jvmMain by getting {
+            dependencies {
+                compileOnly("io.ktor:ktor-io:${Versions.ktorIo}")
+            }
+        }
         val jvmTest by getting
-        val jsMain by getting
+        val jsMain by getting {
+            dependencies {
+                compileOnly("io.ktor:ktor-io:${Versions.ktorIo}")
+            }
+        }
         val jsTest by getting
-        val linuxX64Main by getting
-        val mingwX64Main by getting
-        val macosX64Main by getting
-        val iosX64Main by getting
-        val iosArm64Main by getting
+        val linuxX64Main by getting {
+            dependencies {
+                compileOnly("io.ktor:ktor-io:${Versions.ktorIo}")
+            }
+        }
+        val mingwX64Main by getting {
+            dependencies {
+                compileOnly("io.ktor:ktor-io:${Versions.ktorIo}")
+            }
+        }
+        val macosX64Main by getting {
+            dependencies {
+                compileOnly("io.ktor:ktor-io:${Versions.ktorIo}")
+            }
+        }
+        val iosX64Main by getting {
+            dependencies {
+                compileOnly("io.ktor:ktor-io:${Versions.ktorIo}")
+            }
+        }
+        val iosArm64Main by getting {
+            dependencies {
+                compileOnly("io.ktor:ktor-io:${Versions.ktorIo}")
+            }
+        }
     }
 }
 
