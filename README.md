@@ -4,25 +4,25 @@ Golang-inspired resource management library.
 
 ## Advantage over `use` and `try-finally`
 
-Comparing to the `use` function in Kotlin standard library and `try-finally` block, this library provides the following advantage.
+Comparing to the `use` function in Kotlin standard library and `try-finally` block, this library provides the following advantages.
 
 1. Less indentation, especially when you have multiple resource that need to be closed.
-2. Easy to have variable number of resources.
-3. Provides `cancelDefers` function for moving the ownership, i.e. passing the resources to others and let them close. 
+2. Easy to have a variable number of resources.
+3. Provide a `cancelDefer` method to move ownership, that is, pass the resource to another object and let it take care of closing.
 
-For example, you have some output targets, each of them associated with a name, e.g. files.
+For example, you have some output targets, each of them associated with a name.
 Now you want to implement an object that maintain multiple output targets, and output a message to the corresponding target
-by the message's type. You can do it with this library like this.
+based on the message's type. You can do it with this library like this.
 
 ```kotlin
 data class Message(val type: String, ...)
 
-class OutputTarget(name: String): io.ktor.utils.io.core.Closeable {
+class OutputTarget(name: String): Closeable {
     override fun close() { ... }
     fun output(message: Message) { ... }
 }
 
-class Output(vararg names: String) : io.ktor.utils.io.core.Closeable {
+class Output(vararg names: String) : Closeable {
     private val outputMap: Map<String, OutputTarget>
 
     init {

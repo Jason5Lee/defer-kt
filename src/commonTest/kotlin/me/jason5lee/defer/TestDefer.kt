@@ -2,6 +2,7 @@ package me.jason5lee.defer
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class TestDefer {
@@ -71,6 +72,29 @@ class TestDefer {
                 assertTrue(false, "cancelled defer shouldn't be executed")
             }
             cancelDefers()
+        }
+    }
+
+    @Test
+    fun testUseAfterCancellation() {
+        deferScope {
+            cancelDefers()
+            assertFailsWith<IllegalStateException>("defer should fail after cancelling") {
+                defer { assertTrue(false, "this shouldn't be executed after cancelling") }
+            }
+        }
+    }
+
+    @Test
+    fun testOutOfScope() {
+        var out: DeferScope? = null
+        deferScope {
+            out = this
+        }
+        assertFailsWith<IllegalStateException>("defer should fail when calling out of scope") {
+            out?.defer {
+                assertTrue(false, "this shouldn't be executed out of scope")
+            }
         }
     }
 }
