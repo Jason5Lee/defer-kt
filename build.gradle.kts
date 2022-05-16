@@ -98,10 +98,11 @@ plugins.withType<MavenPublishPlugin> {
                 url.set("https://github.com/jason5lee/defer-kt")
                 inceptionYear.set("2021")
 
+                description.set(project.description)
                 licenses {
                     license {
-                        name.set("ISC License")
-                        url.set("https://opensource.org/licenses/isc-license.txt")
+                        name.set("MIT License")
+                        url.set("https://opensource.org/licenses/MIT")
                     }
                 }
 
