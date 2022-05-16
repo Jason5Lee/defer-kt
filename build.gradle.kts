@@ -108,7 +108,7 @@ plugins.withType<MavenPublishPlugin> {
                 developers {
                     developer {
                         name.set("Jason5Lee")
-//                        url.set("https://www.michael-bull.com")
+                        url.set("https://jason5lee.me/")
                     }
                 }
 
@@ -120,13 +120,13 @@ plugins.withType<MavenPublishPlugin> {
 
                 issueManagement {
                     system.set("GitHub")
-                    url.set("https://github.com/Jason5Lee/defer-kt")
+                    url.set("https://github.com/Jason5Lee/defer-kt/issues")
                 }
 
-//                ciManagement {
-//                    system.set("GitHub")
-//                    url.set("https://github.com/Jason5Lee/resukt/actions?query=workflow%3Aci")
-//                }
+                ciManagement {
+                    system.set("GitHub")
+                    url.set("https://github.com/Jason5Lee/defer-kt/actions?query=workflow%3Aci")
+                }
             }
         }
 
@@ -148,52 +148,30 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                compileOnly("io.ktor:ktor-io:${Versions.ktorIo}")
-            }
-        }
+        val commonMain by getting
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
             }
         }
-        val jvmMain by getting {
-            dependencies {
-                compileOnly("io.ktor:ktor-io:${Versions.ktorIo}")
-            }
-        }
+        val jvmMain by getting
         val jvmTest by getting
-        val jsMain by getting {
-            dependencies {
-                compileOnly("io.ktor:ktor-io:${Versions.ktorIo}")
-            }
-        }
+        val jsMain by getting
         val jsTest by getting
-        val linuxX64Main by getting {
-            dependencies {
-                compileOnly("io.ktor:ktor-io:${Versions.ktorIo}")
-            }
-        }
-        val mingwX64Main by getting {
-            dependencies {
-                compileOnly("io.ktor:ktor-io:${Versions.ktorIo}")
-            }
-        }
-        val macosX64Main by getting {
-            dependencies {
-                compileOnly("io.ktor:ktor-io:${Versions.ktorIo}")
-            }
-        }
-        val iosX64Main by getting {
-            dependencies {
-                compileOnly("io.ktor:ktor-io:${Versions.ktorIo}")
-            }
-        }
-        val iosArm64Main by getting {
-            dependencies {
-                compileOnly("io.ktor:ktor-io:${Versions.ktorIo}")
-            }
+        val linuxX64Main by getting
+        val linuxArm64Main by getting
+        val mingwX64Main by getting
+        val macosX64Main by getting
+        val iosMain by getting
+
+        val otherMain by creating {
+            dependsOn(commonMain)
+            jsMain.dependsOn(this)
+            linuxX64Main.dependsOn(this)
+            linuxArm64Main.dependsOn(this)
+            mingwX64Main.dependsOn(this)
+            macosX64Main.dependsOn(this)
+            iosMain.dependsOn(this)
         }
     }
 }
