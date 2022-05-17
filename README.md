@@ -4,15 +4,13 @@ Golang-inspired resource management library.
 
 ## Advantage over `use` and `try-finally`
 
-Comparing to the `use` function in Kotlin standard library and `try-finally` block, this library provides the following advantages.
+Compared to using the use function and try-finally, this library has the following advantages
 
-1. Less indentation, especially when you have multiple resource that need to be closed.
+1. Less indent, especially if you have multiple resources to close.
 2. Easy to have a variable number of resources.
-3. Provide a `cancelDefer` method to move ownership, that is, pass the resource to another object and let it take care of closing.
+3. Provide the `cancelDefer` method to transfer ownership, i.e. pass the resource to another object and let it close.
 
-For example, you have some output targets, each of them associated with a name.
-Now you want to implement an object that maintain multiple output targets, and output a message to the corresponding target
-based on the message's type. You can do it with this library like this.
+For example, if you have many output targets, each target has a name. Now you want to implement an object that maintains multiple output target objects, which output information to the corresponding target according to the type of information. You can implement this object like this
 
 ```kotlin
 data class Message(val type: String, ...)
@@ -31,11 +29,12 @@ class Output(vararg names: String) : Closeable {
 
             for (name in names) {
                 val target = OutputTarget(name)
-                deferClosing(target) // This defer is for the case that any exception occurs during the constructions.
+                // This defer is to close the created target when an exception is thrown
+                deferClosing(target)
                 outMap[name] = target
             }
             outMap.toMap().also {
-                cancelDefers() // Cancel all defers since the construction succeeds.
+                cancelDefers() // cancel all defers because the construction was successful.
             }
         }
     }
@@ -45,7 +44,7 @@ class Output(vararg names: String) : Closeable {
     }
 
     override fun close() {
-        // You can also use defer to ensure that all closing are executed even some of them fails.
+        // You can use deferScope to ensure all targets are closed even if some fail.
         deferScope {
             for (output in outputMap.values) {
                 deferClosing(output)
@@ -53,4 +52,18 @@ class Output(vararg names: String) : Closeable {
         }
     }
 }
+```
+
+## Usage
+
+### Gradle
+
+```gradle
+implementation "me.jason5lee:defer:1.0.1"
+```
+
+### Gradle Kotlin DSL
+
+```kotlin
+implementation("me.jason5lee:defer:1.0.1")
 ```
