@@ -2,15 +2,50 @@
 
 Golang-inspired resource management library.
 
-## Advantage over `use` and `try-finally`
+## Add to your project
 
-Compared to using the use function and try-finally, this library has the following advantages
+### Gradle
 
-1. Less indent, especially if you have multiple resources to close.
-2. Easy to have a variable number of resources.
-3. Provide the `cancelDefer` method to transfer ownership, i.e. pass the resource to another object and let it close.
+```gradle
+implementation "me.jason5lee:defer:1.0.1"
+```
 
-For example, if you have many output targets, each target has a name. Now you want to implement an object that maintains multiple output target objects, which output information to the corresponding target according to the type of information. You can implement this object like this
+### Gradle Kotlin DSL
+
+```kotlin
+implementation("me.jason5lee:defer:1.0.1")
+```
+
+## Example
+
+Open two file for reading and writing, print a message before attempting to close them.
+
+```kotlin
+deferScope {
+    val f1 = File("/path/to/read-file").bufferedReader()
+    deferClosing(f1)
+    val f2 = File("/path/to/write-file").bufferedWriter()
+        .also { deferClosing(it) }
+    defer { println("Closing file ...") }
+    // Operating f1 and f2
+}
+```
+
+Equivilent code using `use` and `try-finally`
+
+```kotlin
+File("/path/to/read-file").bufferedReader().use { f1 ->
+    File("/path/to/write-file").bufferedWriter().use { f2 ->
+        try {
+            // Operating f1 and f2, with 3 indents instead of 1.
+        } finally {
+            println("Closing file ...")
+        }
+    }
+}
+```
+
+Example of multiple resources and canceling: suppose you have many output targets, each target has a name. Now you want to implement an object that maintains multiple output target objects, which output information to the corresponding target according to the type of information. You can implement this object like this
 
 ```kotlin
 data class Message(val type: String, ...)
@@ -54,16 +89,10 @@ class Output(vararg names: String) : Closeable {
 }
 ```
 
-## Usage
+## Advantage over `use` and `try-finally`
 
-### Gradle
+Compared to using the use function and try-finally, this library has the following advantages
 
-```gradle
-implementation "me.jason5lee:defer:1.0.1"
-```
-
-### Gradle Kotlin DSL
-
-```kotlin
-implementation("me.jason5lee:defer:1.0.1")
-```
+1. Less indent, especially if you have multiple resources to close.
+2. Easy to have a variable number of resources.
+3. Provide the `cancelDefer` method to transfer ownership, i.e. pass the resource to another object and let it close.

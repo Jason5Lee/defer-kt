@@ -37,7 +37,7 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../src/otherMain">
       <sourceFolder url="file://$MODULE_DIR$/../../src/otherMain/kotlin" type="kotlin-source" />
-      <sourceFolder url="file://$MODULE_DIR$/../../src/otherMain/kotlin" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../src/otherMain/kotlin" type="kotlin-source" />
     </content>
     <orderEntry type="jdk" jdkName="Kotlin SDK" jdkType="KotlinSDK" />
     <orderEntry type="sourceFolder" forTests="false" />

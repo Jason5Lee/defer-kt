@@ -5,6 +5,9 @@
       <configuration version="5" platform="Common (experimental) " allPlatforms="JS []/JVM [1.8]/Native []/Native [general]" useProjectSettings="false" isTestModule="true" externalProjectId="defer">
         <dependsOnModuleNames>defer:commonTest</dependsOnModuleNames>
         <newMppModelJpsModuleKind>SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
+        <externalSystemTestTasks>
+          <externalSystemTestTask>iosX64Test|:|iosX64</externalSystemTestTask>
+        </externalSystemTestTasks>
         <compilerSettings />
         <compilerArguments>
           <flagArguments>

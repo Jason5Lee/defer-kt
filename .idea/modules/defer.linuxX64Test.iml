@@ -8,9 +8,6 @@
           <sourceSet>defer.commonTest</sourceSet>
         </sourceSets>
         <newMppModelJpsModuleKind>COMPILATION_AND_SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
-        <externalSystemTestTasks>
-          <externalSystemTestTask>linuxX64Test|:|linuxX64</externalSystemTestTask>
-        </externalSystemTestTasks>
         <compilerSettings />
         <compilerArguments>
           <flagArguments>

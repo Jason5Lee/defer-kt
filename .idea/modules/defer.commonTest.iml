@@ -5,10 +5,11 @@
       <configuration version="5" platform="Common (experimental) " allPlatforms="JS []/JVM [1.8]/Native []/Native [general]" useProjectSettings="false" isTestModule="true" externalProjectId="defer">
         <newMppModelJpsModuleKind>SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
         <externalSystemTestTasks>
+          <externalSystemTestTask>iosX64Test|:|iosX64</externalSystemTestTask>
           <externalSystemTestTask>jsLegacyBrowserTest|:|jsLegacy</externalSystemTestTask>
           <externalSystemTestTask>jsLegacyNodeTest|:|jsLegacy</externalSystemTestTask>
           <externalSystemTestTask>jvmTest|:|jvm</externalSystemTestTask>
-          <externalSystemTestTask>linuxX64Test|:|linuxX64</externalSystemTestTask>
+          <externalSystemTestTask>macosX64Test|:|macosX64</externalSystemTestTask>
         </externalSystemTestTasks>
         <compilerSettings />
         <compilerArguments>
