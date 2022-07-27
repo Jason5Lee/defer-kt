@@ -6,11 +6,11 @@ public actual class DeferScope @PublishedApi internal actual constructor() {
     private var defers: ArrayList<Closeable>? = ArrayList()
 
     public actual inline fun defer(crossinline task: () -> Unit) {
-        deferClosing { task() }
+        Closeable { task() }.deferClosing()
     }
 
-    public fun deferClosing(obj: Closeable) {
-        (defers ?: throwDeferScopeClosed()).add(obj)
+    public fun Closeable.deferClosing() {
+        (defers ?: throwDeferScopeClosed()).add(this)
     }
 
     public actual fun cancelDefers() {

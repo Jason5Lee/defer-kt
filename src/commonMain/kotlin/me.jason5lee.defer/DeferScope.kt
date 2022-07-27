@@ -12,6 +12,7 @@ public expect class DeferScope @PublishedApi internal constructor() {
      * Add the code to the defer list.
      */
     public fun defer(task: () -> Unit)
+
     /**
      * Cancel all defer.
      */

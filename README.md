@@ -45,7 +45,9 @@ File("/path/to/read-file").bufferedReader().use { f1 ->
 }
 ```
 
-Example of multiple resources and canceling: suppose you have many output targets, each target has a name. Now you want to implement an object that maintains multiple output target objects, which output information to the corresponding target according to the type of information. You can implement this object like this
+Example of multiple resources and canceling: suppose you have many output targets, each target has a name. Now you want
+to implement an object that maintains multiple output target objects, which output information to the corresponding
+target according to the type of information. You can implement this object like this
 
 ```kotlin
 data class Message(val type: String, ...)
