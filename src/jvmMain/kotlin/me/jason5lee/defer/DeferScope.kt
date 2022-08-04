@@ -9,8 +9,9 @@ public actual class DeferScope @PublishedApi internal actual constructor() {
         Closeable { task() }.deferClosing()
     }
 
-    public fun Closeable.deferClosing() {
+    public fun <C : Closeable> C.deferClosing(): C {
         (defers ?: throwDeferScopeClosed()).add(this)
+        return this
     }
 
     public actual fun cancelDefers() {
