@@ -1,29 +1,32 @@
 package me.jason5lee.defer
 
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
+
 /**
- * A defer scope. It is not thread-safe.
+ * A defer scope for suspendable deferred tasks. It is not thread-safe.
  */
-public class DeferScope @PublishedApi internal constructor() {
-    private var defers: ArrayList<() -> Unit>? = ArrayList()
+public class SuspendDeferScope @PublishedApi internal constructor() {
+    private var defers: ArrayList<suspend () -> Unit>? = ArrayList()
 
     /**
      * Add a deferred task.
      *
      * @throws DeferScopeClosedException if out of scope or cancelled.
      */
-    public fun defer(task: () -> Unit) {
-        (defers ?: throw DeferScopeClosedException("DeferScope")).add(task)
+    public fun defer(task: suspend () -> Unit) {
+        (defers ?: throw DeferScopeClosedException(scopeName = "SuspendDeferScope")).add(task)
     }
 
     /**
      * Add a deferred task which operates [this].
      *
-     * @return [this]
+     * @return [this] object.
      * @throws DeferScopeClosedException if out of scope or cancelled.
      */
-    public inline fun <T> T.defer(crossinline task: T.() -> Unit): T {
-        this@DeferScope.defer { task() }
-        return this
+    public inline fun <T> T.defer(crossinline task: suspend T.() -> Unit): T {
+        this@SuspendDeferScope.defer { task(this) }
+        return this@defer
     }
 
     /**
@@ -33,8 +36,7 @@ public class DeferScope @PublishedApi internal constructor() {
         defers = null
     }
 
-    @PublishedApi
-    internal fun runDeferred() {
+    private suspend fun runDeferred() {
         val defers = this.defers ?: return
         var exception: Throwable? = null
         for (i in (defers.size - 1) downTo 0) {
@@ -53,7 +55,13 @@ public class DeferScope @PublishedApi internal constructor() {
     }
 
     @PublishedApi
-    internal fun runDeferred(exception: Throwable): Nothing {
+    internal suspend fun runDeferredNonCancellable() {
+        withContext(NonCancellable) {
+            runDeferred()
+        }
+    }
+
+    private suspend fun runDeferred(exception: Throwable): Nothing {
         this.defers?.let { defers ->
             for (i in (defers.size - 1) downTo 0) {
                 try {
@@ -67,19 +75,29 @@ public class DeferScope @PublishedApi internal constructor() {
 
         throw exception
     }
+
+    @PublishedApi
+    internal suspend fun runDeferredNonCancellable(exception: Throwable): Nothing =
+        withContext(NonCancellable) {
+            runDeferred(exception)
+        }
 }
 
 /**
  * Creates a defer scope. Within this scope, you can use `defer` to add deferred tasks.
  * When exiting the defer scope, these tasks are executed in reverse order of their addition.
+ *
+ * The deferred tasks are executed in a [NonCancellable] context. This is useful for clean-up operations,
+ * ensuring they are performed regardless of the coroutine's cancellation state.
+ * This requires `kotlinx-coroutines-core` dependency for coroutine context API.
  */
-public inline fun <R> deferScope(block: DeferScope.() -> R): R {
-    val scope = DeferScope()
+public suspend inline fun <R> suspendDeferScope(block: SuspendDeferScope.() -> R): R {
+    val scope = SuspendDeferScope()
     val result = try {
         block(scope)
     } catch (e: Throwable) {
-        scope.runDeferred(e)
+        scope.runDeferredNonCancellable(e)
     }
-    scope.runDeferred()
+    scope.runDeferredNonCancellable()
     return result
 }

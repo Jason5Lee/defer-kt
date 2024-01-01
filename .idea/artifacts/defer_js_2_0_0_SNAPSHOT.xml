@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="defer-js-2.0.0-SNAPSHOT">
+    <output-path>$PROJECT_DIR$/build/libs</output-path>
+    <root id="archive" name="defer-js-2.0.0-SNAPSHOT.jar">
+      <element id="module-output" name="defer.jsMain" />
+    </root>
+  </artifact>
+</component>

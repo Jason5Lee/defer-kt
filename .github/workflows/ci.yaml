@@ -40,7 +40,7 @@ jobs:
 
   publish:
     needs: check
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.check.result == 'success'
+    if: startsWith(github.ref, 'refs/heads/version-') && github.event_name == 'push' && needs.check.result == 'success'
     runs-on: ${{ matrix.os }}
 
     strategy:

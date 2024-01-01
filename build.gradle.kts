@@ -42,6 +42,8 @@ plugins.withType<MavenPublishPlugin> {
     plugins.withType<KotlinMultiplatformPluginWrapper> {
         apply(plugin = "org.jetbrains.dokka")
 
+        kotlin.sourceSets.forEach { println(it.name) }
+
         val dokkaHtml by tasks.existing(DokkaTask::class) {
             outputDirectory.set(File("$buildDir/docs/javadoc"))
         }
@@ -63,16 +65,35 @@ plugins.withType<MavenPublishPlugin> {
                 }
             }
 
-            js(BOTH) {
+            js(IR) {
                 browser()
                 nodejs()
             }
 
-            ios()
+            // According to https://kotlinlang.org/docs/native-target-support.html
+            // Tier 1
             linuxX64()
-            mingwX64()
             macosX64()
+            macosArm64()
+            iosSimulatorArm64()
+            iosX64()
+            // Tier 2
             linuxArm64()
+            watchosSimulatorArm64()
+            watchosX64()
+            watchosArm32()
+            watchosArm64()
+            tvosSimulatorArm64()
+            tvosX64()
+            tvosArm64()
+            iosArm64()
+            // Tier 3
+            androidNativeArm32()
+            androidNativeArm64()
+            androidNativeX86()
+            androidNativeX64()
+            mingwX64()
+            watchosDeviceArm64()
         }
     }
 
@@ -149,30 +170,17 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting
+        val commonMain by getting {
+            dependencies {
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+            }
+        }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
             }
-        }
-        val jvmMain by getting
-        val jvmTest by getting
-        val jsMain by getting
-        val jsTest by getting
-        val linuxX64Main by getting
-        val linuxArm64Main by getting
-        val mingwX64Main by getting
-        val macosX64Main by getting
-        val iosMain by getting
-
-        val otherMain by creating {
-            dependsOn(commonMain)
-            jsMain.dependsOn(this)
-            linuxX64Main.dependsOn(this)
-            linuxArm64Main.dependsOn(this)
-            mingwX64Main.dependsOn(this)
-            macosX64Main.dependsOn(this)
-            iosMain.dependsOn(this)
         }
     }
 }
