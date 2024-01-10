@@ -79,7 +79,7 @@ class TestDefer {
     fun testUseAfterCancelDeferred() {
         deferScope {
             cancelDeferred()
-            assertFailsWith<IllegalStateException>("defer should fail after being cancelled") {
+            assertFailsWith<DeferScopeClosedException>("defer should fail after being cancelled") {
                 defer { assertTrue(false, "this shouldn't be executed after being cancelled") }
             }
         }
@@ -91,7 +91,7 @@ class TestDefer {
         deferScope {
             out = this
         }
-        assertFailsWith<IllegalStateException>("defer should fail when calling out of scope") {
+        assertFailsWith<DeferScopeClosedException>("defer should fail when calling out of scope") {
             out?.defer {
                 assertTrue(false, "this shouldn't be executed out of scope")
             }

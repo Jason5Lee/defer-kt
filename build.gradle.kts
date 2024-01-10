@@ -22,7 +22,7 @@ plugins {
 }
 
 group = "me.jason5lee"
-version = "2.0.0-SNAPSHOT"
+version = "2.0.0"
 
 tasks.withType<DependencyUpdatesTask> {
     rejectVersionIf {

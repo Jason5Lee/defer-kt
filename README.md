@@ -7,13 +7,13 @@ Golang-inspired resource management library.
 ### Gradle
 
 ```gradle
-implementation "me.jason5lee:defer:1.0.1"
+implementation "me.jason5lee:defer:2.0.0"
 ```
 
 ### Gradle Kotlin DSL
 
 ```kotlin
-implementation("me.jason5lee:defer:1.0.1")
+implementation("me.jason5lee:defer:2.0.0")
 ```
 
 ## Example
@@ -22,16 +22,18 @@ Open two file for reading and writing, print a message before attempting to clos
 
 ```kotlin
 deferScope {
-    val f1 = File("/path/to/read-file").bufferedReader()
-    deferClosing(f1)
-    val f2 = File("/path/to/write-file").bufferedWriter()
-        .also { deferClosing(it) }
+    val f1 = File("/path/to/read-file")
+        .bufferedReader()
+        .defer { close() }
+    val f2 = File("/path/to/write-file")
+        .bufferedWriter()
+        .defer { close() }
     defer { println("Closing file ...") }
     // Operating f1 and f2
 }
 ```
 
-Equivilent code using `use` and `try-finally`
+Equivalent code using `use` and `try-finally`
 
 ```kotlin
 File("/path/to/read-file").bufferedReader().use { f1 ->
@@ -52,12 +54,12 @@ target according to the type of information. You can implement this object like 
 ```kotlin
 data class Message(val type: String, ...)
 
-class OutputTarget(name: String): Closeable {
-    override fun close() { ... }
+class OutputTarget(name: String) {
+    fun close() { ... }
     fun output(message: Message) { ... }
 }
 
-class Output(vararg names: String) : Closeable {
+class Output(vararg names: String) {
     private val outputMap: Map<String, OutputTarget>
 
     init {
@@ -66,12 +68,11 @@ class Output(vararg names: String) : Closeable {
 
             for (name in names) {
                 val target = OutputTarget(name)
-                // This defer is to close the created target when an exception is thrown
-                deferClosing(target)
+                    .defer { close() } // This defer is to close the created target when an exception is thrown.
                 outMap[name] = target
             }
             outMap.toMap().also {
-                cancelDefers() // cancel all defers because the construction was successful.
+                cancelDeferred() // cancel all defers because the construction was successful.
             }
         }
     }
@@ -80,11 +81,11 @@ class Output(vararg names: String) : Closeable {
         outputMap[message.type]?.output(message)
     }
 
-    override fun close() {
+    fun close() {
         // You can use deferScope to ensure all targets are closed even if some fail.
         deferScope {
             for (output in outputMap.values) {
-                deferClosing(output)
+                output.defer { close() }
             }
         }
     }
@@ -98,3 +99,8 @@ Compared to using the use function and try-finally, this library has the followi
 1. Less indent, especially if you have multiple resources to close.
 2. Easy to have a variable number of resources.
 3. Provide the `cancelDefer` method to transfer ownership, i.e. pass the resource to another object and let it close.
+
+## Coroutine supports
+
+Use `suspendDeferScope` if there may be suspend function calls in the defer block.
+The defer code will be executed in the non-cancellable coroutine context.
