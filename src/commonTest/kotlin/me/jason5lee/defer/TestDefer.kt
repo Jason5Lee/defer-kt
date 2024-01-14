@@ -20,11 +20,11 @@ class TestDefer {
                 assertEquals(2, current)
                 current = 3
             }
-            defer {
+            2.defer { // 2 is this
                 // The scope is executed but the first defer is not executed.
                 assertEquals(1, current)
-                current = 2
-            }
+                current = this
+            }.let { assertEquals(2, it) } // `this` is returned
             // No defer is executed yet.
             assertEquals(0, current)
             current = 1
@@ -66,21 +66,21 @@ class TestDefer {
     }
 
     @Test
-    fun testCancellation() {
+    fun testCancelDeferred() {
         deferScope {
             defer {
-                assertTrue(false, "cancelled defer shouldn't be executed")
+                assertTrue(false, "cancelled deferred task shouldn't be executed")
             }
-            cancelDefers()
+            cancelDeferred()
         }
     }
 
     @Test
-    fun testUseAfterCancellation() {
+    fun testUseAfterCancelDeferred() {
         deferScope {
-            cancelDefers()
-            assertFailsWith<IllegalStateException>("defer should fail after cancelling") {
-                defer { assertTrue(false, "this shouldn't be executed after cancelling") }
+            cancelDeferred()
+            assertFailsWith<DeferScopeClosedException>("defer should fail after being cancelled") {
+                defer { assertTrue(false, "this shouldn't be executed after being cancelled") }
             }
         }
     }
@@ -91,7 +91,7 @@ class TestDefer {
         deferScope {
             out = this
         }
-        assertFailsWith<IllegalStateException>("defer should fail when calling out of scope") {
+        assertFailsWith<DeferScopeClosedException>("defer should fail when calling out of scope") {
             out?.defer {
                 assertTrue(false, "this shouldn't be executed out of scope")
             }
